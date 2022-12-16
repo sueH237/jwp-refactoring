@@ -22,7 +22,7 @@ public class MenuGroupServiceTest {
     private MenuGroupDao menuGroupDao;
 
     @InjectMocks
-    MenuGroupService menuGroupService;
+    private MenuGroupService menuGroupService;
 
     private MenuGroup 커피류;
     private MenuGroup 차류;
@@ -51,8 +51,8 @@ public class MenuGroupServiceTest {
     @DisplayName("메뉴 그룹 목록을 조회한다.")
     void 메뉴_그룹_목록_조회() {
         // given
-        List<MenuGroup> menuGroupList = Arrays.asList(커피류, 차류);
-        given(menuGroupDao.findAll()).willReturn(menuGroupList);
+        List<MenuGroup> menuGroups = Arrays.asList(커피류, 차류);
+        given(menuGroupDao.findAll()).willReturn(menuGroups);
 
         // when
         List<MenuGroup> searchMenuGroup = menuGroupService.list();

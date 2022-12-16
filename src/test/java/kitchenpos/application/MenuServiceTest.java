@@ -37,7 +37,7 @@ public class MenuServiceTest {
     @Mock
     private ProductDao productDao;
     @InjectMocks
-    MenuService menuService;
+    private MenuService menuService;
 
     private Menu 기본메뉴;
     private MenuGroup 조식메뉴그룹;

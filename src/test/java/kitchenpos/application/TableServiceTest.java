@@ -27,7 +27,7 @@ public class TableServiceTest {
     @Mock
     private OrderTableDao orderTableDao;
     @InjectMocks
-    TableService tableService;
+    private TableService tableService;
 
     private OrderTable 주문테이블_Empty;
     private OrderTable 주문테이블_NotEmpty;

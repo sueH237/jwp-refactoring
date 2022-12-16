@@ -24,7 +24,7 @@ public class ProductServiceTest {
     private ProductDao productDao;
 
     @InjectMocks
-    ProductService productService;
+    private ProductService productService;
 
     private Product 아메리카노;
     private Product 아이스티;
