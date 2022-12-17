@@ -6,11 +6,14 @@ import kitchenpos.dao.OrderLineItemDao;
 import kitchenpos.dao.OrderTableDao;
 import kitchenpos.menu.domain.Menu;
 import kitchenpos.menu.domain.MenuProduct;
+import kitchenpos.menu.repository.MenuRepository;
 import kitchenpos.menuGroup.domain.MenuGroup;
 import kitchenpos.order.domain.Order;
 import kitchenpos.order.domain.OrderLineItem;
 import kitchenpos.order.domain.OrderStatus;
+import kitchenpos.order.repository.OrderRepository;
 import kitchenpos.orderTable.domain.OrderTable;
+import kitchenpos.orderTable.repository.OrderTableRepository;
 import kitchenpos.product.domain.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +45,12 @@ public class OrderServiceTest {
     private OrderLineItemDao orderLineItemDao;
     @Mock
     private OrderTableDao orderTableDao;
+    @Mock
+    private MenuRepository menuRepository;
+    @Mock
+    private OrderRepository orderRepository;
+    @Mock
+    private OrderTableRepository orderTableRepository;
     @InjectMocks
     private OrderService orderService;
 
@@ -69,12 +78,12 @@ public class OrderServiceTest {
 
         주문_테이블1 = new OrderTable(1L, 2, false);
         접수_주문 = new Order(1L, 주문_테이블1.getId(), OrderStatus.COOKING.name(), LocalDateTime.now());
-        접수_주문_기본메뉴 = new OrderLineItem(1L, 접수_주문.getId(), 기본메뉴.getId(), 1);
+        접수_주문_기본메뉴 = new OrderLineItem(1L, 기본메뉴.getId(), 1);
         접수_주문.setOrderLineItems(Arrays.asList(접수_주문_기본메뉴));
 
         주문_테이블2 = new OrderTable(2L, 2, false);
         완료_주문 = new Order(2L, 주문_테이블2.getId(), OrderStatus.COMPLETION.name(), LocalDateTime.now());
-        완료_주문_기본메뉴 = new OrderLineItem(2L, 완료_주문.getId(), 기본메뉴.getId(), 1);
+        완료_주문_기본메뉴 = new OrderLineItem(2L, 기본메뉴.getId(), 1);
         완료_주문.setOrderLineItems(Arrays.asList(완료_주문_기본메뉴));
     }
 
@@ -82,9 +91,9 @@ public class OrderServiceTest {
     @DisplayName("주문을 등록한다.")
     void 주문_등록() {
         // given
-        given(menuDao.countByIdIn(anyList())).willReturn(1L);
-        given(orderTableDao.findById(주문_테이블1.getId())).willReturn(Optional.of(주문_테이블1));
-        given(orderDao.save(접수_주문)).willReturn(접수_주문);
+        given(menuRepository.countByIdIn(anyList())).willReturn(1);
+        given(orderTableRepository.findById(주문_테이블1.getId())).willReturn(Optional.of(주문_테이블1));
+        given(orderRepository.save(접수_주문)).willReturn(접수_주문);
 
         // when
         Order saveOrder = orderService.create(접수_주문);
@@ -111,7 +120,7 @@ public class OrderServiceTest {
     @DisplayName("주문 항목 속 메뉴들이 등록되어 있지 않으면 오류 발생한다.")
     void error_주문_등록_NOT_REGISTER_안된_메뉴() {
         // given
-        given(menuDao.countByIdIn(anyList())).willReturn(2L);
+        given(menuRepository.countByIdIn(anyList())).willReturn(2);
 
         // then
         assertThrows(IllegalArgumentException.class, () -> orderService.create(접수_주문));
@@ -121,8 +130,8 @@ public class OrderServiceTest {
     @DisplayName("주문 테이블이 등록되어 있지 않으면 오류 발생한다.")
     void error_주문_등록_NOT_REGISTER_주문_테이블() {
         // given
-        given(menuDao.countByIdIn(anyList())).willReturn(1L);
-        given(orderTableDao.findById(주문_테이블1.getId())).willReturn(Optional.ofNullable(null));
+        given(menuRepository.countByIdIn(anyList())).willReturn(1);
+        given(orderTableRepository.findById(주문_테이블1.getId())).willReturn(Optional.ofNullable(null));
 
         // then
         assertThrows(IllegalArgumentException.class, () -> orderService.create(접수_주문));
@@ -133,8 +142,8 @@ public class OrderServiceTest {
     void error_주문_등록_EMPTY_주문_테이블() {
         // given
         주문_테이블1.setEmpty(true);
-        given(menuDao.countByIdIn(anyList())).willReturn(1L);
-        given(orderTableDao.findById(접수_주문.getOrderTableId())).willReturn(Optional.of(주문_테이블1));
+        given(menuRepository.countByIdIn(anyList())).willReturn(1);
+        given(orderTableRepository.findById(접수_주문.getOrderTableId())).willReturn(Optional.of(주문_테이블1));
 
         // then
         assertThrows(IllegalArgumentException.class, () -> orderService.create(접수_주문));
@@ -144,8 +153,8 @@ public class OrderServiceTest {
     @DisplayName("주문 목록을 조회한다.")
     void 주문_목록_조회() {
         // given
-        given(orderDao.findAll()).willReturn(Arrays.asList(접수_주문));
-        given(orderLineItemDao.findAllByOrderId(접수_주문.getId())).willReturn(접수_주문.getOrderLineItems());
+        given(orderRepository.findAll()).willReturn(Arrays.asList(접수_주문));
+        //given(orderLineItemDao.findAllByOrderId(접수_주문.getId())).willReturn(접수_주문.getOrderLineItems());
 
         // when
         List<Order> searchOrder = orderService.list();
@@ -158,7 +167,7 @@ public class OrderServiceTest {
     @DisplayName("주문 상태를 수정한다.(COOKING -> MEAL)")
     void 주문_상태_수정() {
         // given
-        given(orderDao.findById(anyLong())).willReturn(Optional.of(접수_주문));
+        given(orderRepository.findById(anyLong())).willReturn(Optional.of(접수_주문));
 
         // when
         Order order = new Order(3L, 주문_테이블1.getId(), OrderStatus.MEAL.name(), LocalDateTime.now());
@@ -172,7 +181,7 @@ public class OrderServiceTest {
     @DisplayName("주문이 등록이 되어 있지 않으면 주문 상태 수정 시, 오류 발생한다.")
     void error_주문_상태_수정_NOT_REGISTER_주문() {
         // given
-        given(orderDao.findById(anyLong())).willReturn(Optional.ofNullable(null));
+        given(orderRepository.findById(anyLong())).willReturn(Optional.ofNullable(null));
 
         // when
         Order order = new Order(3L, 주문_테이블1.getId(), OrderStatus.MEAL.name(), LocalDateTime.now());
@@ -185,7 +194,7 @@ public class OrderServiceTest {
     @DisplayName("주문이 상태가 완료면 주문 수정 시, 오류 발생한다.")
     void error_주문_상태_수정_주문_상태_완료() {
         // given
-        given(orderDao.findById(anyLong())).willReturn(Optional.of(완료_주문));
+        given(orderRepository.findById(anyLong())).willReturn(Optional.of(완료_주문));
 
         // when
         Order order = new Order(3L, 주문_테이블1.getId(), OrderStatus.MEAL.name(), LocalDateTime.now());
