@@ -5,6 +5,7 @@ import kitchenpos.dao.OrderTableDao;
 import kitchenpos.order.domain.OrderStatus;
 import kitchenpos.orderTable.application.TableService;
 import kitchenpos.orderTable.domain.OrderTable;
+import kitchenpos.orderTable.repository.OrderTableRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,8 @@ public class TableServiceTest {
     private OrderDao orderDao;
     @Mock
     private OrderTableDao orderTableDao;
+    @Mock
+    private OrderTableRepository orderTableRepository;
     @InjectMocks
     private TableService tableService;
 
@@ -47,7 +50,7 @@ public class TableServiceTest {
     @DisplayName("주문 테이블을 등록한다.")
     void 주문_테이블_등록() {
         // given
-        given(orderTableDao.save(주문테이블_Empty)).willReturn(주문테이블_Empty);
+        given(orderTableRepository.save(주문테이블_Empty)).willReturn(주문테이블_Empty);
 
         // when
         OrderTable saveOrderTable = tableService.create(주문테이블_Empty);
@@ -62,7 +65,7 @@ public class TableServiceTest {
     @DisplayName("주문 테이블 목록을 조회한다.")
     void 주문_테이블_목록_조회() {
         // given
-        given(orderTableDao.findAll()).willReturn(Arrays.asList(주문테이블_Empty));
+        given(orderTableRepository.findAll()).willReturn(Arrays.asList(주문테이블_Empty));
 
         // when
         List<OrderTable> orderTableList = tableService.list();
@@ -76,7 +79,7 @@ public class TableServiceTest {
     void 주문_테이블_EMPTY_UPDATE() {
         // given
         OrderTable orderTable = new OrderTable(주문테이블_Empty.getId(), 주문테이블_Empty.getTableGroupId(), 주문테이블_Empty.getNumberOfGuests(), false);
-        given(orderTableDao.findById(주문테이블_Empty.getId())).willReturn(Optional.of(주문테이블_Empty));
+        given(orderTableRepository.findById(주문테이블_Empty.getId())).willReturn(Optional.of(주문테이블_Empty));
         given(tableService.changeEmpty(주문테이블_Empty.getId(), orderTable)).willReturn(orderTable);
 
         // when
@@ -91,7 +94,7 @@ public class TableServiceTest {
     void error_주문_테이블_EMPTY_UPDATE_단체_지정_등록() {
         // given
         OrderTable orderTable = new OrderTable(주문테이블_Empty_Group.getId(), 주문테이블_Empty_Group.getTableGroupId(), 주문테이블_Empty_Group.getNumberOfGuests(), false);
-        given(orderTableDao.findById(주문테이블_Empty_Group.getId())).willReturn(Optional.of(주문테이블_Empty_Group));
+        given(orderTableRepository.findById(주문테이블_Empty_Group.getId())).willReturn(Optional.of(주문테이블_Empty_Group));
 
         // then
         assertThrows(IllegalArgumentException.class, () -> tableService.changeEmpty(주문테이블_Empty_Group.getId(), orderTable));
@@ -101,7 +104,7 @@ public class TableServiceTest {
     @DisplayName("주문 상태가 조리 중/식사 중인 주문 테이블의 비어있음을 수정하면 오류가 발생한다.")
     void error_주문_테이블_EMPTY_UPDATE_주문_상태() {
         // given
-        given(orderTableDao.findById(주문테이블_Empty.getId())).willReturn(Optional.of(주문테이블_Empty));
+        given(orderTableRepository.findById(주문테이블_Empty.getId())).willReturn(Optional.of(주문테이블_Empty));
         given(orderDao.existsByOrderTableIdAndOrderStatusIn(주문테이블_Empty.getId(), Arrays.asList(OrderStatus.COOKING.name(), OrderStatus.MEAL.name()))).willReturn(true);
 
         // then
@@ -113,7 +116,7 @@ public class TableServiceTest {
     void 주문_테이블_GUEST_NUM_UPDATE() {
         // given
         주문테이블_1명_Group = new OrderTable(주문테이블_NotEmpty.getId(), 1L, 주문테이블_NotEmpty.getNumberOfGuests(), false);
-        given(orderTableDao.findById(주문테이블_NotEmpty.getId())).willReturn(Optional.of(주문테이블_NotEmpty));
+        given(orderTableRepository.findById(주문테이블_NotEmpty.getId())).willReturn(Optional.of(주문테이블_NotEmpty));
         given(tableService.changeNumberOfGuests(주문테이블_NotEmpty.getId(), 주문테이블_1명_Group)).willReturn(주문테이블_1명_Group);
 
         // when
