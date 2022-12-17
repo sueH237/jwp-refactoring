@@ -64,8 +64,8 @@ public class OrderServiceTest {
         조식메뉴그룹 = new MenuGroup(1L, "조식메뉴그룹");
         아메리카노 = new Product(1L, "아메리카노", BigDecimal.valueOf(3000));
         스콘 = new Product(2L, "스콘", BigDecimal.valueOf(2000));
-        기본메뉴_아메리카노 = new MenuProduct(1L, 1L, 아메리카노.getId(), 1);
-        기본메뉴_스콘 = new MenuProduct(2L, 1L, 스콘.getId(), 1);
+        기본메뉴_아메리카노 = new MenuProduct(1L, 아메리카노.getId(), 1);
+        기본메뉴_스콘 = new MenuProduct(2L, 스콘.getId(), 1);
         기본메뉴 = new Menu(1L, "기본메뉴", BigDecimal.valueOf(6000), 조식메뉴그룹.getId(), Arrays.asList(기본메뉴_아메리카노, 기본메뉴_스콘));
 
         주문_테이블1 = new OrderTable(1L, null, 2, false);
