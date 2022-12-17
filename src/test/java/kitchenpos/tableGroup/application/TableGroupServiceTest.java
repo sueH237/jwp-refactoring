@@ -1,11 +1,12 @@
-package kitchenpos.application;
+package kitchenpos.tableGroup.application;
 
 import kitchenpos.dao.OrderDao;
 import kitchenpos.dao.OrderTableDao;
 import kitchenpos.dao.TableGroupDao;
 import kitchenpos.orderTable.domain.OrderTable;
-import kitchenpos.tableGroup.application.TableGroupService;
+import kitchenpos.orderTable.repository.OrderTableRepository;
 import kitchenpos.tableGroup.domain.TableGroup;
+import kitchenpos.tableGroup.repository.TableGroupRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,10 @@ public class TableGroupServiceTest {
     private OrderTableDao orderTableDao;
     @Mock
     private TableGroupDao tableGroupDao;
+    @Mock
+    private TableGroupRepository tableGroupRepository;
+    @Mock
+    private OrderTableRepository orderTableRepository;
     @InjectMocks
     private TableGroupService tableGroupService;
 
@@ -43,20 +48,20 @@ public class TableGroupServiceTest {
 
     @BeforeEach
     void setUp() {
-        테이블1 = new OrderTable(1L, null, 0, true);
-        테이블2 = new OrderTable(2L, null, 0, true);
-        테이블3 = new OrderTable(3L, null, 0, true);
+        테이블1 = new OrderTable(1L, 0, true);
+        테이블2 = new OrderTable(2L, 0, true);
+        테이블3 = new OrderTable(3L, 0, true);
         단체1 = new TableGroup(1L, LocalDateTime.now(), Arrays.asList(테이블1, 테이블2, 테이블3));
-        테이블_GUEST3_NOT_EMPTY = new OrderTable(4L, null, 3, false);
-        테이블_TABLEGROUP = new OrderTable(5L, 2L, 3, false);
+        테이블_GUEST3_NOT_EMPTY = new OrderTable(4L, 3, false);
+        테이블_TABLEGROUP = new OrderTable(5L, 3, false);
     }
 
     @Test
     @DisplayName("단체을 등록한다.")
     void 단체_등록() {
         // given
-        given(orderTableDao.findAllByIdIn(anyList())).willReturn(Arrays.asList(테이블1, 테이블2, 테이블3));
-        given(tableGroupDao.save(단체1)).willReturn(단체1);
+        given(orderTableRepository.findAllByIdIn(anyList())).willReturn(Arrays.asList(테이블1, 테이블2, 테이블3));
+        given(tableGroupRepository.save(단체1)).willReturn(단체1);
 
         // when
         TableGroup saveTableGroup = tableGroupService.create(단체1);
@@ -91,7 +96,7 @@ public class TableGroupServiceTest {
     @DisplayName("단체 내 주문테이블이 등록되어 있지 않으면 오류 발생한다.")
     void error_단체_등록_NOT_REGISTER_주문_테이블() {
         // given
-        given(orderTableDao.findAllByIdIn(anyList())).willReturn(Arrays.asList(테이블1, 테이블2));
+        given(orderTableRepository.findAllByIdIn(anyList())).willReturn(Arrays.asList(테이블1, 테이블2));
 
         // then
         assertThrows(IllegalArgumentException.class, () -> tableGroupService.create(단체1));
@@ -101,7 +106,7 @@ public class TableGroupServiceTest {
     @DisplayName("단체 내 주문테이블이 비어 있지 않으면 오류 발생한다.")
     void error_단체_등록_NOT_EMPTY_주문_테이블() {
         // given
-        given(orderTableDao.findAllByIdIn(anyList())).willReturn(Arrays.asList(테이블1, 테이블_GUEST3_NOT_EMPTY));
+        given(orderTableRepository.findAllByIdIn(anyList())).willReturn(Arrays.asList(테이블1, 테이블_GUEST3_NOT_EMPTY));
 
         // then
         assertThrows(IllegalArgumentException.class, () -> tableGroupService.create(단체1));
@@ -111,7 +116,7 @@ public class TableGroupServiceTest {
     @DisplayName("다른 단체에 지정된 주문테이블이 있으면 등록 시, 오류 발생한다.")
     void error_단체_등록_ANOTHER_단체_주문_테이블() {
         // given
-        given(orderTableDao.findAllByIdIn(anyList())).willReturn(Arrays.asList(테이블1, 테이블_TABLEGROUP));
+        given(orderTableRepository.findAllByIdIn(anyList())).willReturn(Arrays.asList(테이블1, 테이블_TABLEGROUP));
 
         // then
         assertThrows(IllegalArgumentException.class, () -> tableGroupService.create(단체1));
@@ -121,22 +126,22 @@ public class TableGroupServiceTest {
     @DisplayName("단체을 삭제한다.")
     void 단체_삭제() {
         // given
-        given(orderTableDao.findAllByTableGroupId(anyLong())).willReturn(Arrays.asList(테이블1, 테이블2, 테이블3));
+        given(orderTableRepository.findAllByTableGroupId(anyLong())).willReturn(Arrays.asList(테이블1, 테이블2, 테이블3));
 
         // when
         tableGroupService.ungroup(단체1.getId());
 
         // then
-        assertThat(테이블1.getTableGroupId()).isNull();
-        assertThat(테이블2.getTableGroupId()).isNull();
-        assertThat(테이블3.getTableGroupId()).isNull();
+        assertThat(테이블1.getTableGroup()).isNull();
+        assertThat(테이블2.getTableGroup()).isNull();
+        assertThat(테이블3.getTableGroup()).isNull();
     }
 
     @Test
     @DisplayName("단체 삭제 시, 주문 테이블의 상태가 주문 중 / 식사중 이면 오류 발생한다.")
     void error_단체_삭제_주문_테이블_상태() {
         // given
-        given(orderTableDao.findAllByTableGroupId(anyLong())).willReturn(Arrays.asList(테이블1, 테이블2, 테이블3));
+        given(orderTableRepository.findAllByTableGroupId(anyLong())).willReturn(Arrays.asList(테이블1, 테이블2, 테이블3));
         given(orderDao.existsByOrderTableIdInAndOrderStatusIn(anyList(), anyList())).willReturn(true);
 
         // then

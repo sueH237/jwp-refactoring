@@ -1,4 +1,4 @@
-package kitchenpos.application;
+package kitchenpos.order.application;
 
 import kitchenpos.dao.MenuDao;
 import kitchenpos.dao.OrderDao;
@@ -7,7 +7,6 @@ import kitchenpos.dao.OrderTableDao;
 import kitchenpos.menu.domain.Menu;
 import kitchenpos.menu.domain.MenuProduct;
 import kitchenpos.menuGroup.domain.MenuGroup;
-import kitchenpos.order.application.OrderService;
 import kitchenpos.order.domain.Order;
 import kitchenpos.order.domain.OrderLineItem;
 import kitchenpos.order.domain.OrderStatus;
@@ -68,12 +67,12 @@ public class OrderServiceTest {
         기본메뉴_스콘 = new MenuProduct(2L, 스콘.getId(), 1);
         기본메뉴 = new Menu(1L, "기본메뉴", BigDecimal.valueOf(6000), 조식메뉴그룹.getId(), Arrays.asList(기본메뉴_아메리카노, 기본메뉴_스콘));
 
-        주문_테이블1 = new OrderTable(1L, null, 2, false);
+        주문_테이블1 = new OrderTable(1L, 2, false);
         접수_주문 = new Order(1L, 주문_테이블1.getId(), OrderStatus.COOKING.name(), LocalDateTime.now());
         접수_주문_기본메뉴 = new OrderLineItem(1L, 접수_주문.getId(), 기본메뉴.getId(), 1);
         접수_주문.setOrderLineItems(Arrays.asList(접수_주문_기본메뉴));
 
-        주문_테이블2 = new OrderTable(2L, null, 2, false);
+        주문_테이블2 = new OrderTable(2L, 2, false);
         완료_주문 = new Order(2L, 주문_테이블2.getId(), OrderStatus.COMPLETION.name(), LocalDateTime.now());
         완료_주문_기본메뉴 = new OrderLineItem(2L, 완료_주문.getId(), 기본메뉴.getId(), 1);
         완료_주문.setOrderLineItems(Arrays.asList(완료_주문_기본메뉴));
