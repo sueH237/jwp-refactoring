@@ -1,9 +1,5 @@
 package kitchenpos.order.application;
 
-import kitchenpos.dao.MenuDao;
-import kitchenpos.dao.OrderDao;
-import kitchenpos.dao.OrderLineItemDao;
-import kitchenpos.dao.OrderTableDao;
 import kitchenpos.menu.repository.MenuRepository;
 import kitchenpos.order.domain.Order;
 import kitchenpos.order.domain.OrderLineItem;
@@ -22,26 +18,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
-    private final MenuDao menuDao;
-    private final OrderDao orderDao;
-    private final OrderLineItemDao orderLineItemDao;
-    private final OrderTableDao orderTableDao;
     private final MenuRepository menuRepository;
     private final OrderTableRepository orderTableRepository;
     private final OrderRepository orderRepository;
 
     public OrderService(
-            final MenuDao menuDao,
-            final OrderDao orderDao,
-            final OrderLineItemDao orderLineItemDao,
-            final OrderTableDao orderTableDao,
             final MenuRepository menuRepository,
             final OrderTableRepository orderTableRepository,
             final OrderRepository orderRepository) {
-        this.menuDao = menuDao;
-        this.orderDao = orderDao;
-        this.orderLineItemDao = orderLineItemDao;
-        this.orderTableDao = orderTableDao;
         this.menuRepository = menuRepository;
         this.orderTableRepository = orderTableRepository;
         this.orderRepository = orderRepository;
@@ -76,23 +60,11 @@ public class OrderService {
 
         final Order savedOrder = orderRepository.save(order);
 
-        /*final Long orderId = savedOrder.getId();
-        final List<OrderLineItem> savedOrderLineItems = new ArrayList<>();
-        for (final OrderLineItem orderLineItem : orderLineItems) {
-            orderLineItem.setOrderId(orderId);
-            savedOrderLineItems.add(orderLineItemDao.save(orderLineItem));
-        }
-        savedOrder.setOrderLineItems(savedOrderLineItems);*/
-
         return savedOrder;
     }
 
     public List<Order> list() {
         final List<Order> orders = orderRepository.findAll();
-
-        /*for (final Order order : orders) {
-            order.setOrderLineItems(orderLineItemDao.findAllByOrderId(order.getId()));
-        }*/
 
         return orders;
     }
@@ -110,8 +82,6 @@ public class OrderService {
         savedOrder.setOrderStatus(orderStatus.name());
 
         orderRepository.save(savedOrder);
-
-//        savedOrder.setOrderLineItems(orderLineItemDao.findAllByOrderId(orderId));
 
         return savedOrder;
     }

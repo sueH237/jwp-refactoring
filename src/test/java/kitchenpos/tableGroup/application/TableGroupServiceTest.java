@@ -1,8 +1,6 @@
 package kitchenpos.tableGroup.application;
 
-import kitchenpos.dao.OrderDao;
-import kitchenpos.dao.OrderTableDao;
-import kitchenpos.dao.TableGroupDao;
+import kitchenpos.order.repository.OrderRepository;
 import kitchenpos.orderTable.domain.OrderTable;
 import kitchenpos.orderTable.repository.OrderTableRepository;
 import kitchenpos.tableGroup.domain.TableGroup;
@@ -27,11 +25,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class TableGroupServiceTest {
     @Mock
-    private OrderDao orderDao;
-    @Mock
-    private OrderTableDao orderTableDao;
-    @Mock
-    private TableGroupDao tableGroupDao;
+    private OrderRepository orderRepository;
     @Mock
     private TableGroupRepository tableGroupRepository;
     @Mock
@@ -142,7 +136,7 @@ public class TableGroupServiceTest {
     void error_단체_삭제_주문_테이블_상태() {
         // given
         given(orderTableRepository.findAllByTableGroupId(anyLong())).willReturn(Arrays.asList(테이블1, 테이블2, 테이블3));
-        given(orderDao.existsByOrderTableIdInAndOrderStatusIn(anyList(), anyList())).willReturn(true);
+        given(orderRepository.existsByOrderTableIdInAndOrderStatusIn(anyList(), anyList())).willReturn(true);
 
         // then
         assertThrows(IllegalArgumentException.class, () -> tableGroupService.ungroup(단체1.getId()));

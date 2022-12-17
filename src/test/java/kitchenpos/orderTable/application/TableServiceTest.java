@@ -1,8 +1,7 @@
 package kitchenpos.orderTable.application;
 
-import kitchenpos.dao.OrderDao;
-import kitchenpos.dao.OrderTableDao;
 import kitchenpos.order.domain.OrderStatus;
+import kitchenpos.order.repository.OrderRepository;
 import kitchenpos.orderTable.domain.OrderTable;
 import kitchenpos.orderTable.repository.OrderTableRepository;
 import kitchenpos.tableGroup.domain.TableGroup;
@@ -26,9 +25,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class TableServiceTest {
     @Mock
-    private OrderDao orderDao;
-    @Mock
-    private OrderTableDao orderTableDao;
+    private OrderRepository orderRepository;
     @Mock
     private OrderTableRepository orderTableRepository;
     @InjectMocks
@@ -109,7 +106,7 @@ public class TableServiceTest {
     void error_주문_테이블_EMPTY_UPDATE_주문_상태() {
         // given
         given(orderTableRepository.findById(주문테이블_Empty.getId())).willReturn(Optional.of(주문테이블_Empty));
-        given(orderDao.existsByOrderTableIdAndOrderStatusIn(주문테이블_Empty.getId(), Arrays.asList(OrderStatus.COOKING.name(), OrderStatus.MEAL.name()))).willReturn(true);
+        given(orderRepository.existsByOrderTableIdAndOrderStatusIn(주문테이블_Empty.getId(), Arrays.asList(OrderStatus.COOKING.name(), OrderStatus.MEAL.name()))).willReturn(true);
 
         // then
         assertThrows(IllegalArgumentException.class, () -> tableService.changeEmpty(주문테이블_Empty.getId(), 주문테이블_NotEmpty));
